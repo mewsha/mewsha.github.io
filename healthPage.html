@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+
+
+
+<html>
+
+	<head>
+	
+		<!-- <script src="https://unpkg.com/vue"></script> -->
+		 <!-- <script src="https://vuejs.org/js/vue.min.js"></script> -->
+		<script src = "D:\eclipse-oxygen\frameworks\vue.js"></script>
+		<!-- <script src = "https://unpkg.com/axios/dist/axios.min.js"></script>-->
+		
+		
+		<style>
+			/* Debug */ 
+			/* 
+			    * { border: 1px solid red; } 
+			*/
+			/* transitions from vue documention*/
+			.slide-fade-right-enter-active,
+			.slide-fade-top-enter-active  {
+			  transition: all .3s ease;
+			}
+			.slide-fade-right-leave-active,
+			.slide-fade-top-leave-active {
+			  transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+			}
+			.slide-fade-right-enter, .slide-fade-right-leave-to
+			/* .slide-fade-leave-active below version 2.1.8 */ {
+			  transform: translateX(10px);
+			  opacity: 0;
+			}
+			
+			.slide-fade-top-enter, .slide-fade-top-leave-to
+			/* .slide-fade-leave-active below version 2.1.8 */ {
+			  transform: translateY(-10px);
+			  opacity: 0;
+			}
+			
+			.fade-enter-active, .fade-leave-active {
+			  transition: opacity .5s
+			}
+			.fade-enter, .fade-leave-to {
+			  opacity: 0
+			}
+		</style>
+	
+	</head>
+	
+	
+	<body>
+	
+		<div id="app" :style="appStyle">
+			<div id="mat" :style="matStyle">
+			
+			
+				<div :style="base">
+				
+					<div id='header'>
+						<div :style='header'>
+							<div :style='[bTextStyle, contactNumStyle]' 
+								 v-html='contactNum.text'
+								 v-if='!contactNum.hidden'></div>
+							<div :style='logo'
+								 @mouseover='logoOver'
+								 @mouseenter='showMenu=false'>
+								<div :style='logoCircle'>
+									<div :style='logoTextStyle' v-html='companyName'></div>
+									<div :style='logoLine'></div>
+								</div>
+							</div>
+							<div :style="hamButStyle"
+								 @click='hamButClick'>
+								<div :style="hamStyle"></div>
+								<div :style="hamStyle"></div>
+								<div :style="hamStyle"></div>
+							</div>
+						</div>
+					</div>
+					
+					<div id='mid'>
+						<div :style='mid'
+							 @click='showMenu=false'>
+							<div :style='midSep'></div>
+							<div :style='midTextUpper'>
+								<center>
+									<span :style='uTextStyle' v-html='upperText'></span>
+								</center>
+							</div>
+							<div :style='midSep'>
+								<center>
+									<div :style='midSepBar'></div>
+								</center>
+							</div>
+							<div :style='midTextLower'>
+								<center>
+									<span :style="lTextStyle" v-html='lowerText'></span>
+								</center>
+							</div>
+							<div :style='midSep'></div>
+						</div>
+					</div>
+					
+				</div>
+				
+				<div :style="linkBoxContStyle">
+					<li v-for="val in boxText" 
+						style="list-style:none;">
+						<div id='linkBox'>
+							<div :style='[linkBox,linkBoxBG[val]]'
+							 	 @mouseover="linkBoxOver"
+							 	 @mouseleave="active[val]=false"
+							 	 @mouseenter="active[val]=true,showMenu=false">
+							 	<transition :name='linkBoxTName'>
+									<div :style='[linkBoxHoverStyle, linkBoxImages[val]]' 
+										 v-if='active[val]'></div>
+								</transition>
+								<div :style='linkBoxIconHolder'>
+									<center>
+										<div :style='linkBoxIcon[val]'></div>
+									</center>
+								</div>
+								<div :style='linkBoxTextHolder'>
+									<center>
+										<span :style='bTextStyle' v-html='val'></span>
+									</center>				
+								</div>
+								<div :style='linkBoxArrow'></div>
+							</div>
+						</div>	
+					</li>	
+				</div>
+				
+				<div :style="divBreakStyle"></div>
+				
+				<div :style="footer">
+					<center>
+						<br/>
+						<span v-for='i in footerText'>					
+							<div :style="footerSep"></div>
+							<div :style='fTextStyle'
+								 @mouseenter='footTextEnter'
+								 @mouseleave='footTextLeave'>&nbsp&nbsp{{i}}&nbsp&nbsp</div>
+						</span>				
+						<div :style="footerSep"></div>
+						<br/>
+					</center>		
+					<center>
+					<div :style='bTextStyle'
+						 v-html='contactNum.text' 
+						 v-if='!contactNum.hidden'></div>
+					</center>
+				</div>
+				
+			
+				<!-- context menu -->
+				<transition name="fade">
+						<div id="myMenu"
+							v-if="showMenu"
+							:style="[{top:top, left:left},menuStyle]">
+							<li v-for="i in menuItems"
+								style='list-style:none;'>
+									<div :style="menuItemStyle">
+										<center>
+											<span :style='mTextStyle'
+												  v-html='i'
+											 	  @mouseover="menuEnter"
+											 	  @mouseleave="menuLeave"
+											 	  @mouseenter="menuEnter"></span>
+										</center>
+									</div>
+							</li>
+						</div>
+				</transition>
+				<!-- /context menu -->
+			</div>
+		</div>
+		
+		
+	</body>
+	
+	
+</html>
+
+
+
+
+
+<script type="text/javascript">
+
+//Theme colors
+var bgColor="#C0EEB8"
+var navBgColor="#0F1F34"
+var hColor="#8FC588"
+var navHColor="#964624"
+var tColor="#71544E"
+var navTColor="#59AEA6"
+var effectColor='rgba(0, 128, 128,.55)'//#008080//'rgba(197, 93, 213, .55)'//"#C55DDA"
+var accentColor='rgba(55, 43, 183,.55)'//'teal'////"#372BB7"
+var bgWidth = 341.0
+var bgHeight = 148.0
+var imgSrc = 'url(rfabstractbg2.jpg)'
+var boxImg = ['url(rfOffice.jpg)',
+			  'url(rfLocation.jpg)',
+			  'url(consult.jpg)']
+
+
+var healthPage = new Vue({
+	   el:"#app",
+	   data:{
+		    windowWidth:window.innerWidth,
+		   	companyName:"<strong>MyMedHealth</strong>",
+		    upperText:"Quality Care When You Need It Most",
+		    lowerText:"We provide superior health services for all ages",
+		    boxText:["Services", "Locations", "Physicians"],
+		   	active:{"Services":false, "Locations":false, "Physicians":false},
+		    footerText:["Patient Log In", "Insurance", "Contact", "Careers", "About"],
+		   	contactNum:{'text':'<i>+1 239 382 23*</i>',
+		    			'hidden': false},
+		    top:'0px',
+		    left:'0px',
+		    hamButClickOffsetX:120,
+		    showMenu:false,
+		    menuItems:["Patient Log In", "Insurance", "Contact"],
+		    appStyle:{
+		    	backgroundColor:bgColor,
+		    	margin:'-20px -10px',
+		  		overflow:'hidden'
+		    },
+		    matStyle:{
+			   fontFamily:'Helvetica',
+			   margin:'10px'
+		    },
+		    logoTextStyle:{
+			    width:'100px',
+		  	    height:'20px',
+		  	    margin:'0px 60px',
+		  	    borderRadius:'2px',
+		  	    float:'left',
+		  	    color:'White'
+			 },
+		     uTextStyle:{
+				fontFamily:'Verdana',
+				fontSize:'2em',
+				padding:'10px 10px',
+				display:'block',
+  			  	color: 'white'
+		     },
+		     lTextStyle:{
+				fontFamily:'Bookman',
+				fontSize:'1.5em',
+				padding:'10px 10px',
+				display:'block',
+  			  	color: 'white'
+		     },
+		     bTextStyle:{
+				fontFamily:'Palatino',
+				fontSize:'1.3em',
+				padding:'10px 10px',
+				margin:'8px 3px',
+				display:'block',
+  			  	color: 'white'
+		     },
+		     mTextStyle:{
+				fontFamily:'Palatino',
+				fontSize:'1.3em',
+				padding:'10px 5px',
+				display:'block',
+  			  	color: 'white',
+  			  	backgroundColor:navBgColor,
+				borderRadius:'50px'
+		     },
+		     fTextStyle:{
+				fontFamily:'Palatino',
+				padding:'5px 5px',
+				margin:'8px 3px',
+  			  	color: 'white',
+  				fontSize:'1em',
+  				display:'inline-block'
+		     },
+		     base:{width:'100%',
+				  borderBottom: '5px groove ' + navHColor,
+				  backgroundColor:navBgColor,
+				  backgroundImage:'linear-gradient( rgba(0, 50, 128, .45), rgba(0, 50, 200, 0.45)),' + imgSrc,
+			  	  backgroundSize:'100px',
+			  	  backgroundPosition:'center'
+		     },
+		     divBreakStyle:{
+		    	width:'100%',
+		    	height:'30px',
+		    	backgroundColor:bgColor
+		     },
+		     header:{
+		    	 width:'100%',
+		    	 height:'70px',
+		  		 backgroundColor:navBgColor,
+		  		 borderBottom: '5px groove ' + navHColor
+		     },
+		    contactNumStyle:{width:'200px',
+		 	      			height: '30px',
+		 	      			margin: '15px 15px',
+		 	      			float:'left'
+		    },
+		    logo:{width:'200px',
+				  position:'absolute',
+			  	  margin:'13px 15px'},
+		    logoCircle:{width:'40px',
+				  		height:'40px',
+				  		borderRadius:'20px',
+				  		border:'3px dashed ' + effectColor,
+				  		backgroundColor:navTColor
+		    		   },
+		    logoLine:{width:'200px',
+				  	  height:'5px',
+				  	  backgroundColor:navTColor,
+				  	  margin:'0px 7px',
+				  	  borderRadius:'20px',
+				  	  float:'left'
+				  	  },
+			hamButStyle:{width:'50px',
+				  		 height:'45px',
+				  		 backgroundColor:navBgColor,
+				  		 margin:'15px 15px',
+				  		 border:'2px solid ' + navHColor,
+				  		 borderRadius:'5px',
+				  		 float:'right',
+				  		 boxShadow:'2px 2px 4px ' + accentColor
+				  		 },
+			hamStyle:{width:'40px',
+				  height:'5px',
+				  backgroundColor:navTColor,
+				  margin:'7px 5px',
+				  borderRadius:'2px'
+				  },
+			mid:{width:'100%',
+				backgroundImage:''},			
+		    midSep:{width:'100%',
+		    		height:'25px'},
+		    midTextUpper:{width:'100%'},
+		    midSepBar:{width:'100px',
+		 		 	   height:'5px',
+					   backgroundColor:hColor},
+		    midTextLower:{width:'100%'},
+		    linkBoxContStyle:{width:'100%',
+		    			      height: '180px'},
+		    linkBoxBG:{"Services":{backgroundColor:navBgColor},
+					   "Locations":{backgroundColor:hColor},
+					   "Physicians":{backgroundColor:navTColor}
+					  },
+		    linkBox:{width:'100%',
+		    		 height: '60px',
+		    		 float:'left'},
+			linkBoxImages:{"Services":{backgroundImage:boxImg[0]},
+						   "Locations":{backgroundImage:boxImg[1]},
+						   "Physicians":{backgroundImage:boxImg[2]}
+						  },
+			linkBoxHoverStyle:{width:'90%',
+	    		 	      height: '60px',
+	    		 	      backgroundColor:'black',
+	    		 	      position:'absolute',
+	    		 	      backgroundSize:'100%',
+						  backgroundPosition:'center'
+		    		 	  },
+		    linkBoxIconHolder:{width:'100%',
+		    				   height: '60px',
+			    			   position:'absolute'
+			    		       },
+		    linkBoxIcon:{"Services":{height:'30px',
+			    		  width:'30px',
+			    		  borderRadius:'30px 50px 30px 5px',
+			    		  margin:'12px 18px',
+			    		  left:'0%',
+				    	  float:'left',
+			    		  position:'relative',
+			    		  border:"2px solid" + navTColor},
+			    		 "Locations":{height:'30px',
+				    	  width:'20px',
+				    	  borderRadius:'2px',
+				    	  margin:'12px 22px',
+			    		  left:'0%',
+				    	  float:'left',
+			    		  position:'relative',
+				          border:"2px solid" + navBgColor},
+				    	 "Physicians":{height:'30px',
+					      width:'30px',
+					      borderRadius:'30px 5px 30px 50px',
+					      margin:'12px 18px',
+			    		  left:'0%',
+					      float:'left',
+			    		  position:'relative',
+					      border:"2px solid" + hColor}
+			    		 },
+		    linkBoxTextHolder:{width:'100%',
+		    				   height: '60px',
+		    				   position:'absolute'
+			    		       },
+		    linkBoxArrow:{height:'10px',
+			    		  width:'10px',
+			    		  borderRight: '2px solid white',
+			    		  borderTop: '2px solid white',
+			    		  transform: 'rotate(45deg)',
+			    		  margin: '20px 20px',
+			    		  float:'right'
+			    		  },
+		    menuStyle:{width:'180px',
+					   position:'absolute',
+					   backgroundColor:navBgColor,
+					   border:"2px solid" + navHColor,
+					   borderRadius:'10px'},
+			menuItemStyle:{
+				  height:'45px',
+				  margin:'7px 5px'				
+			},
+		    footer:{
+		    	 width:'100%',
+		    	 height:'70px',
+		  		 backgroundColor:navBgColor
+		    },
+			footerSep:{
+				width:'40px',
+				height:'2px',
+				backgroundColor:navHColor,
+				display:'inline-block',
+				margin:'0px 10px'
+			}
+		},
+		created: function(){
+			window.addEventListener('resize', this.resized)
+			this.resized()
+		},
+		computed: {
+				linkBoxTName: function() { 
+				if (this.windowWidth > 800) { return 'slide-fade-top' }
+				else { return 'slide-fade-right' }			
+			}
+		},
+		methods:{
+			logoOver: function(event){
+				event.target.style.cursor='pointer'
+			},
+			footTextEnter: function(event){
+				event.target.style.color=accentColor
+				event.target.style.cursor='pointer'
+			},
+			footTextLeave: function(event){
+				event.fromElement.style.color='white'
+				event.fromElement.style.cursor='default'
+			},
+			linkBoxOver: function(event){
+				event.target.style.cursor='pointer'
+			},
+			menuEnter: function(event){
+				event.target.style.backgroundColor=accentColor
+				event.target.style.cursor='pointer'				
+			},
+			menuLeave: function(event){
+				event.fromElement.style.backgroundColor=navBgColor
+				event.fromElement.style.cursor='default'
+			},			
+   			hamButClick:function(event){
+ 			    this.showMenu=!this.showMenu
+ 			    this.top = event.y + 70 + "px"
+ 			},
+			setMidText: function(uSize,lSize,uPad,lPad,uT,lT){
+				this.uTextStyle.fontSize = uSize
+				this.lTextStyle.fontSize = lSize
+				this.uTextStyle.padding = uPad
+				this.lTextStyle.padding = lPad
+				this.upperText = uT
+				this.lowerText = lT
+			},
+			hideContactNum: function(hidden, left, tra, sca, marg){
+				this.contactNum.hidden = hidden
+				this.logo.left=left
+				this.logo.transform='translate('+tra+') scale('+sca+')'
+				this.contactNumStyle.margin = marg
+				this.hamButStyle.margin = marg
+			},
+			linkBoxBar: function(w, h, imgW, tra, sca, dp, iM, fl, thM, lbcH){
+				this.linkBox.width=w
+				this.linkBox.height=h
+				this.linkBoxHoverStyle.width=imgW
+				this.linkBoxHoverStyle.height=h
+				this.linkBoxTextHolder.width=w
+				this.linkBoxTextHolder.margin=thM
+				this.linkBoxArrow.display=dp
+				this.linkBoxIconHolder.width=w
+				for (i in this.linkBoxIcon){
+					this.linkBoxIcon[i].transform='scale('+sca+')'
+					this.linkBoxIcon[i].margin=iM
+					this.linkBoxIcon[i].float=fl
+				}
+				this.linkBoxContStyle.height=lbcH
+			},
+			setMenuSize: function(msBg, msB, w, misM, misH, tP, tBR){
+				this.menuStyle.backgroundColor=msBg
+				this.menuStyle.border=msB
+				this.menuStyle.width=w + "px"
+ 			    this.left = window.innerWidth - w - 50 + "px"
+				this.menuItemStyle.margin=misM
+				this.menuItemStyle.height=misH
+				this.mTextStyle.padding = tP
+				this.mTextStyle.borderRadius = tBR
+			},
+			setDivBreak: function(height){
+				this.divBreakStyle.height=height
+			},
+			setFooterSize: function(disp, sepW, sepH, footH, sepM){
+				this.footerSep.display=disp
+				this.footerSep.width=sepW
+				this.footerSep.height=sepH
+				this.footerSep.margin=sepM
+				this.fTextStyle.display=disp
+				this.footer.height=footH
+			},
+			resized: function() {
+				this.showMenu = false
+				var wWidth = window.innerWidth
+				this.windowWidth = wWidth //recompute transition class name
+				var topText = "Quality Care When You Need It Most"
+				var botText = "We provide superior health services for all ages"
+				var topTextWrap = "Quality Care When You <br\> Need It Most"
+
+				var perScale = '80'
+				
+				if (wWidth<400) { 
+					percScale = '500'
+					this.header.height = '70px'
+					this.header.backgroundColor = navBgColor
+					this.hideContactNum(true, '0%', '-25px', '.75', '10px')
+					this.setMidText('2em', '1.5em', '10px 10px', '10px 10px',
+						            topText, botText)
+					this.linkBoxBar("100%", "60px", "90%", "0px", "1",
+										 "block", '12px 18px', 'left', "0px", "180px")
+					this.setMenuSize(navBgColor, "2px solid" + navHColor,
+									 200, '7px 5px', '45px', '10px 5px', '50px')
+					this.setDivBreak('10px')
+					this.setFooterSize('block', '40px', '4px', '', '15px 0px')
+				}
+				else if (wWidth<800) {
+					percScale = Math.ceil((500/wWidth) * 200)
+					this.header.height = '70px'
+					this.header.backgroundColor = navBgColor
+					this.hideContactNum(true, '0%', '0px', '1', '10px')
+					this.setMidText('2em', '1.5em', '20px 20px', '20px 20px',
+						            topText, botText)
+					this.linkBoxBar("100%", "60px", "90%", "0px", "1",
+										 "block", '12px 18px', 'left', "0px", "180px")
+					this.setMenuSize(navBgColor, "2px solid" + navHColor, 
+							         300, '9px 8px', '45px', '12px', '50px')
+					this.setDivBreak('10px')
+					this.setFooterSize('block', '40px', '3px', '', '10px 0px')
+				}
+				else if (wWidth<1050){
+					percScale = '120'
+					this.header.height = '80px'
+					this.header.backgroundColor = navBgColor
+					this.hideContactNum(false, '48%', '-100px, 5px', '1', '15px')
+					this.setMidText('3em', '2em', '30px 30px', '30px 30px', 
+							        topText, botText)		   
+					this.linkBoxBar("33.33%", "120px", "33%", "-50px", "1.5",
+								         "none", '20px 30px', '', "60px 0px", "120px")
+					this.setMenuSize(navBgColor, '',400, '10px', '45px', '12px', '10px')
+					this.setDivBreak('20px')
+					this.setFooterSize('inline-block', '3px', '30px', '120px', '-15px 0px')
+				}
+				else {
+					percScale = '110'
+					this.header.height = '110px'
+					this.header.backgroundColor = ''
+					this.hideContactNum(false, '50%', '-100px, 20px', '1.5', '30px')
+					this.setMidText('3.5em', '2.5em', '30px 30px', '30px 30px',	
+					                topText, botText)	    				
+					this.linkBoxBar("33.33%", "120px", "33%", "-50px", "1.5",
+									"none", '20px 30px', '', "60px 0px", "120px")
+					this.setMenuSize('', '', 500, '15px', '60px', '20px', '2px')
+					this.setDivBreak('25px')
+					this.setFooterSize('inline-block', '2px', '30px', '150px', '-15px 20px')
+				}
+				this.base.backgroundSize = percScale + "%"
+			}
+		}	
+})
+
+
+</script>
